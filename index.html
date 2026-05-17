@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة كفو الرقمية | المتجر الرسمي</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg: #09090b; --surface: #141417; --border: #27272a; --text: #ffffff; --muted: #a1a1aa; --accent: #22c55e; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
+        
+        header { background: rgba(20,20,23,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 999; padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.4rem; font-weight: 900; }
+        
+        .nav-tabs { display: flex; background: var(--surface); padding: 8px; border-bottom: 1px solid var(--border); position: sticky; top: 62px; z-index: 99; gap: 8px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        .nav-tabs::-webkit-scrollbar { display: none; }
+        .tab-link { background: none; border: none; color: var(--muted); padding: 8px 16px; font-weight: 700; cursor: pointer; border-radius: 8px; font-size: 0.9rem; display: inline-block; transition: 0.2s; }
+        .tab-link.active { background: var(--text); color: var(--bg); }
+        
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; display: none; }
+        .container.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        
+        .page-content-wrapper { max-width: 800px; margin: 40px auto; background: var(--surface); border: 1px solid var(--border); padding: 35px; border-radius: 16px; display: none; }
+        .page-content-wrapper.active { display: block; }
+        .page-body-text { color: var(--muted); line-height: 1.8; font-size: 1.05rem; white-space: pre-wrap; margin-top: 20px; }
+        
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 16px; }
+        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; }
+        .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+        .card-price { color: var(--accent); font-weight: 900; font-size: 1.2rem; margin: 10px 0; }
+        
+        .blog-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+        .blog-card img { width: 100%; height: 180px; object-fit: cover; }
+        .blog-content { padding: 16px; }
+        
+        .btn { width: 100%; background: var(--text); color: var(--bg); border: none; padding: 10px; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: auto; }
+        .btn:disabled { background: #27272a !important; color: #71717a !important; cursor: not-allowed; }
+        
+        .modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(5px); z-index:9999; display:none; justify-content:center; align-items:center; padding: 20px; }
+        .modal-box { background:var(--surface); border:1px solid var(--border); padding:25px; border-radius:16px; max-width:400px; width:100%; }
+        .modal-box input { width:100%; background:var(--bg); border:1px solid var(--border); padding:10px; color:#fff; border-radius:8px; margin-bottom:12px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">⚡ منصة كفو الرقمية</div>
+    <div style="font-size:0.8rem; color:var(--muted)">العراق - كربلاء</div>
+</header>
+
+<div class="nav-tabs" id="dynamicNavbarTabs">
+    <button class="tab-link active" onclick="switchSection('accessories', this)">🛍️ متجر الإكسسوارات</button>
+    <button class="tab-link" onclick="switchSection('sims', this)">📟 حجز خطوط كفو</button>
+    <button class="tab-link" onclick="switchSection('blog', this)">📰 مدونة كفو</button>
+</div>
+
+<div id="accessoriesSection" class="container active"></div>
+<div id="simsSection" class="container"></div>
+<div id="blogSection" class="container"></div>
+
+<div id="customPageDisplaySection" class="page-content-wrapper">
+    <h2 id="customPageDisplayTitle" style="font-weight: 900; border-bottom: 2px solid var(--border); padding-bottom: 15px;">-</h2>
+    <div id="customPageDisplayBody" class="page-body-text"></div>
+</div>
+
+<div class="modal" id="orderModal">
+    <div class="modal-box">
+        <h3 style="margin-bottom: 5px;">تأكيد طلبك الفوري</h3>
+        <p id="targetItemDisplay" style="color:var(--accent); font-weight:700; margin-bottom:15px;"></p>
+        <input type="text" id="cName" placeholder="الاسم الثلاثي">
+        <input type="tel" id="cPhone" placeholder="رقم الموبايل النشط">
+        <input type="text" id="cAddress" placeholder="العنوان الدقيق في كربلاء">
+        <button class="btn" onclick="sendOrderToCloud()">إرسال الطلب الفوري</button>
+        <button class="btn" style="background:#27272a; color:#fff; margin-top:8px;" onclick="closeModal()">إلغاء</button>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = { databaseURL: "https://kafoo30-default-rtdb.firebaseio.com/" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let selectedKey = '', selectedType = '', selectedName = '';
+    let globalCustomPages = {};
+
+    function switchSection(sec, btn) {
+        document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+        document.getElementById('customPageDisplaySection').classList.remove('active');
+        document.querySelectorAll('.tab-link').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        if(sec === 'accessories') document.getElementById('accessoriesSection').classList.add('active');
+        else if(sec === 'sims') document.getElementById('simsSection').classList.add('active');
+        else if(sec === 'blog') document.getElementById('blogSection').classList.add('active');
+    }
+
+    function viewCustomPage(pageKey, btn) {
+        document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-link').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const page = globalCustomPages[pageKey];
+        document.getElementById('customPageDisplayTitle').innerText = page.title;
+        document.getElementById('customPageDisplayBody').innerText = page.body;
+        document.getElementById('customPageDisplaySection').classList.add('active');
+    }
+
+    db.ref('custom_pages').on('value', snap => {
+        const navContainer = document.getElementById('dynamicNavbarTabs');
+        navContainer.innerHTML = `
+            <button class="tab-link active" onclick="switchSection('accessories', this)">🛍️ متجر الإكسسوارات</button>
+            <button class="tab-link" onclick="switchSection('sims', this)">📟 حجز خطوط كفو</button>
+            <button class="tab-link" onclick="switchSection('blog', this)">📰 مدونة كفو</button>
+        `;
+        globalCustomPages = {};
+        snap.forEach(child => {
+            const pageKey = child.key; const pageData = child.val();
+            if(pageData.visible !== false) {
+                globalCustomPages[pageKey] = pageData;
+                navContainer.innerHTML += `<button class="tab-link" onclick="viewCustomPage('${pageKey}', this)">📄 ${pageData.title}</button>`;
+            }
+        });
+    });
+
+    db.ref('products').on('value', snap => {
+        const div = document.getElementById('accessoriesSection'); div.innerHTML = '';
+        snap.forEach(child => {
+            const p = child.val();
+            if(p.visible !== false) {
+                div.innerHTML += `
+                    <div class="card">
+                        <img src="${p.img || 'https://via.placeholder.com/300'}" alt="">
+                        <div class="card-title">${p.name}</div>
+                        <p style="color:var(--muted); font-size:0.8rem; min-height:36px;">${p.desc || ''}</p>
+                        <div class="card-price">${p.price}</div>
+                        <button class="btn" onclick="openOrder('accessory', '${child.key}', '${p.name}')">شراء الآن</button>
+                    </div>`;
+            }
+        });
+    });
+
+    db.ref('sims').on('value', snap => {
+        const div = document.getElementById('simsSection'); div.innerHTML = '';
+        snap.forEach(child => {
+            const s = child.val();
+            if(s.status !== 'hidden') {
+                const isReserved = s.status === 'reserved';
+                div.innerHTML += `
+                    <div class="card" style="border-right: 4px solid ${isReserved ? '#ef4444' : 'var(--accent)'}; opacity: ${isReserved ? '0.7' : '1'}">
+                        <span style="font-size:0.75rem; color:var(--muted); font-weight:700;">${s.category}</span>
+                        <div class="card-title" style="font-size:1.6rem; font-weight:900; direction:ltr; text-align:left; margin:10px 0; text-decoration: ${isReserved ? 'line-through' : 'none'}">${s.number}</div>
+                        <p style="color:var(--muted); font-size:0.8rem;">${isReserved ? '🔒 عذراً، هذا الرقم محجوز حالياً' : (s.desc || '')}</p>
+                        <div class="card-price" style="color: ${isReserved ? '#71717a' : 'var(--accent)'}">${s.price}</div>
+                        <button class="btn" ${isReserved ? 'disabled' : ''} style="background:${isReserved ? '#27272a' : 'var(--accent)'}; color:${isReserved ? '#a1a1aa' : '#000'}" onclick="openOrder('sim', '${child.key}', '${s.number}')">
+                            ${isReserved ? 'تم الحجز 🔒' : 'حجز الخط الان'}
+                        </button>
+                    </div>`;
+            }
+        });
+    });
+
+    db.ref('blog').on('value', snap => {
+        const div = document.getElementById('blogSection'); div.innerHTML = '';
+        snap.forEach(child => {
+            const b = child.val();
+            div.innerHTML += `
+                <div class="blog-card">
+                    <img src="${b.img || 'https://via.placeholder.com/400x200'}" alt="">
+                    <div class="blog-content">
+                        <span style="font-size:0.7rem; color:var(--muted); font-weight:700;">📅 ${b.date}</span>
+                        <h3 style="margin:8px 0; font-size:1.1rem;">${b.title}</h3>
+                        <p style="color:var(--muted); font-size:0.85rem; line-height:1.6; white-space: pre-wrap;">${b.body}</p>
+                    </div>
+                </div>`;
+        });
+    });
+
+    function openOrder(type, key, name) {
+        selectedType = type; selectedKey = key; selectedName = name;
+        document.getElementById('targetItemDisplay').innerText = "طلب: " + name;
+        document.getElementById('orderModal').style.display = 'flex';
+    }
+    function closeModal() { document.getElementById('orderModal').style.display = 'none'; }
+
+    function sendOrderToCloud() {
+        const name = document.getElementById('cName').value.trim();
+        const phone = document.getElementById('cPhone').value.trim();
+        const address = document.getElementById('cAddress').value.trim();
+        if(!name || !phone || !address) return alert("يرجى إدخال البيانات كاملة وتفاصيل السكن!");
+
+        db.ref('orders').push({
+            type: selectedType, itemKey: selectedKey, itemName: selectedName,
+            clientName: name, clientPhone: phone, clientAddress: address, time: new Date().toISOString()
+        }).then(() => {
+            if(selectedType === 'sim') {
+                db.ref('sims/' + selectedKey).update({ status: 'reserved' });
+            }
+            alert("🎉 تم إرسال طلبك بنجاح وقفل الخط باسمك!");
+            closeModal();
+            document.getElementById('cName').value = ''; document.getElementById('cPhone').value = ''; document.getElementById('cAddress').value = '';
+        });
+    }
+</script>
+</body>
+</html>
