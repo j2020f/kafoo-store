@@ -3,134 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>التحكم المركزي | إدارة منصة كفو</title>
+    <title>التحكم الشامل | المندوب جعفر حسن</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg: #09090b; --surface: #141417; --border: #27272a; --text: #ffffff; --muted: #a1a1aa; --accent: #22c55e; --danger: #ef4444; --warning: #eab308; }
+        :root { --bg: #ffffff; --surface: #f7fdfd; --border: #d1eeee; --text: #1a2e2e; --muted: #5f7d7d; --turquoise: #00adb5; --danger: #ef4444; --warning: #eab308; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
         body { background: var(--bg); color: var(--text); padding: 15px; }
-        
-        #lockScreen { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; display:flex; justify-content:center; align-items:center; }
-        .lock-box { background:var(--surface); padding:30px; border-radius:16px; border:1px solid var(--border); text-align:center; max-width:360px; width:100%; }
-        
+        #lockScreen { position: fixed; top:0; left:0; width:100%; height:100%; background:#1a2e2e; z-index:9999; display:flex; justify-content:center; align-items:center; }
+        .lock-box { background:#fff; padding:30px; border-radius:20px; text-align:center; max-width:360px; width:100%; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .panel { background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between; }
-        .panel-title { font-size: 1.1rem; font-weight: 900; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-        
+        .panel { background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: 16px; display: flex; flex-direction: column; }
+        .panel-title { font-size: 1.1rem; font-weight: 900; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--turquoise); }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; font-weight: 700; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 10px; color: #fff; border-radius: 8px; outline: none; resize: none; }
-        
-        .btn { width: 100%; background: var(--text); color: var(--bg); border: none; padding: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: auto; }
-        
+        .form-group input, .form-group select, .form-group textarea { width: 100%; background: #fff; border: 1px solid var(--border); padding: 10px; color: var(--text); border-radius: 8px; outline: none; }
+        .btn { width: 100%; background: var(--turquoise); color: #fff; border: none; padding: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: auto; }
         .inventory-section { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-top: 25px; }
-        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; margin-top: 15px; margin-bottom: 25px; }
-        .inventory-card { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; }
-        .inventory-card.disabled { opacity: 0.5; border-color: #451a03; }
-        
-        .card-meta { font-size: 0.8rem; color: var(--muted); font-weight: 700; }
-        .card-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-        .card-actions button { flex: 1; min-width: 70px; border: none; padding: 6px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; }
-        
-        .action-edit { background: var(--warning); color: #000; }
-        .action-toggle { background: #3b82f6; color: #fff; }
-        .action-delete { background: var(--danger); color: #fff; }
-
-        .table-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px; overflow-x: auto; margin-top: 25px; }
-        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 0.85rem; min-width: 600px; }
-        th, td { padding: 10px; border-bottom: 1px solid var(--border); }
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
-        .badge.accessory { background: #3b82f622; color: #3b82f6; }
-        .badge.sim { background: #eab30822; color: #eab308; }
+        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; margin-top: 15px; }
+        .inventory-card { background: #fff; border: 1px solid var(--border); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .card-actions { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+        .card-actions button { flex: 1; min-width: 80px; border: none; padding: 6px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; color: white; }
     </style>
 </head>
 <body>
 
 <div id="lockScreen">
     <div class="lock-box">
-        <h2>بوابة الإدارة المركزية</h2>
-        <input type="password" id="pinCode" style="width:100%; padding:12px; margin:15px 0; text-align:center; font-size:1.5rem; letter-spacing:4px;" placeholder="••••">
+        <h2>بوابة المندوب جعفر حسن</h2>
+        <input type="password" id="pinCode" style="width:100%; padding:12px; margin:15px 0; text-align:center; font-size:1.5rem;" placeholder="••••">
         <button class="btn" onclick="checkAccess()">دخول آمن</button>
     </div>
 </div>
 
 <div id="dashboard" style="display:none;">
-    <h1 style="margin-bottom: 25px; font-weight: 900; font-size: 1.5rem;">⚡ إدارة منصة كفو</h1>
+    <h1 style="margin-bottom: 25px; font-weight: 900;">⚡ لوحة الإدارة والتحكم الشاملة</h1>
     
-    <div class="grid-layout">
-        <div class="panel">
-            <div>
-                <div class="panel-title"><i class="fa-solid fa-box"></i> إضافة إكسسوار / بضاعة</div>
-                <div class="form-group"><label>اسم المنتج</label><input type="text" id="pName"></div>
-                <div class="form-group"><label>رابط صورة المنتج</label><input type="url" id="pImg" placeholder="https://..."></div>
-                <div class="form-group"><label>السعر (د.ع)</label><input type="text" id="pPrice" placeholder="15,000 د.ع"></div>
-                <div class="form-group"><label>وصف مختصر للمادة</label><textarea id="pDesc" rows="2"></textarea></div>
-            </div>
-            <button class="btn" onclick="addAccessory()">نشر المنتج في المتجر</button>
-        </div>
-
-        <div class="panel">
-            <div>
-                <div class="panel-title"><i class="fa-solid fa-sim-card"></i> إضافة خط (رقم مميز)</div>
-                <div class="form-group"><label>رقم الهاتف المعروض</label><input type="tel" id="simNum" placeholder="078..."></div>
-                <div class="form-group"><label>الفئة التصنيفية</label><select id="simCat"><option>ملكي VIP</option><option>خماسي متناسق</option><option>مميز اقتصادي</option></select></div>
-                <div class="form-group"><label>السعر النهائي</label><input type="text" id="simPrice" placeholder="75,000 د.ع"></div>
-                <div class="form-group"><label>تفاصيل الباقة أو الشبكة</label><textarea id="simDesc" rows="2"></textarea></div>
-            </div>
-            <button class="btn" onclick="addSim()">عرض الرقم للبيع</button>
-        </div>
-
-        <div class="panel">
-            <div>
-                <div class="panel-title"><i class="fa-solid fa-pen-to-square"></i> إضافة مقال / عرض بالمدونة</div>
-                <div class="form-group"><label>عنوان المقال</label><input type="text" id="blogTitle"></div>
-                <div class="form-group"><label>رابط صورة الغلاف</label><input type="url" id="blogImg" placeholder="https://..."></div>
-                <div class="form-group"><label>محتوى المقال بالتفصيل</label><textarea id="blogBody" rows="5"></textarea></div>
-            </div>
-            <button class="btn" onclick="addBlogPost()">نشر المقال فوراً</button>
-        </div>
-
-        <div class="panel">
-            <div>
-                <div class="panel-title"><i class="fa-solid fa-file-lines"></i> إنشاء صفحة مخصصة جديدة</div>
-                <div class="form-group"><label>اسم الصفحة</label><input type="text" id="pageTitle" placeholder="مثال: من نحن"></div>
-                <div class="form-group"><label>محتوى الصفحة والبنود</label><textarea id="pageBody" rows="8"></textarea></div>
-            </div>
-            <button class="btn" style="background: var(--accent); color: #000;" onclick="createNewPage()">إنشاء ونشر الصفحة</button>
+    <div class="panel" style="margin-bottom:25px; background: #fff3cd; border-color: #ffeba2;">
+        <h3 style="font-weight: 900;"><i class="fa-solid fa-power-off"></i> قسم الأخبار والمدونة</h3>
+        <p style="font-size: 0.85rem; color: #664d03; margin-bottom:10px;">تحكم بظهور قسم الأخبار بالكامل لزبائنك من هنا:</p>
+        <button class="btn" id="blogStatusGlobalBtn" onclick="toggleGlobalBlogStatus()" style="background: #1a2e2e; max-width: 250px; margin-bottom: 10px;">جاري الفحص...</button>
+        
+        <div id="blogEditorPanel" style="display:none; background:white; padding:15px; border-radius:10px; border:1px solid #ffeba2; margin-top:10px;">
+            <h4 style="margin-bottom:10px; color:var(--turquoise)">✍️ نشر خبر أو عرض جديد</h4>
+            <div class="form-group"><label>عنوان الخبر</label><input type="text" id="bTitle"></div>
+            <div class="form-group"><label>تفاصيل الخبر</label><textarea id="bBody" rows="2"></textarea></div>
+            <div class="form-group"><label>صورة الخبر</label><input type="file" id="bImg" accept="image/*"></div>
+            <button class="btn" onclick="addBlogM()">نشر الخبر الآن</button>
         </div>
     </div>
 
-    <div class="table-wrapper">
-        <h2 style="margin-bottom: 15px; font-weight: 900; color: var(--accent); font-size: 1.1rem;"><i class="fa-solid fa-bell"></i> الطلبات الواردة حياً</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>نوع الطلب</th>
-                    <th>المنتج / الرقم</th>
-                    <th>الاسم</th>
-                    <th>الموبايل</th>
-                    <th>العنوان</th>
-                    <th>الإجراء</th>
-                </tr>
-            </thead>
-            <tbody id="ordersTable"></tbody>
-        </table>
+    <div class="grid-layout">
+        <div class="panel">
+            <div class="panel-title"><i class="fa-solid fa-box"></i> إضافة بضاعة (حتى 3 صور)</div>
+            <div class="form-group"><label>اسم المنتج</label><input type="text" id="pName"></div>
+            <div class="form-group"><label>الصورة الرئيسية</label><input type="file" id="pImg1" accept="image/*"></div>
+            <div class="form-group"><label>صورة إضافية 1</label><input type="file" id="pImg2" accept="image/*"></div>
+            <div class="form-group"><label>صورة إضافية 2</label><input type="file" id="pImg3" accept="image/*"></div>
+            <div class="form-group"><label>السعر</label><input type="text" id="pPrice"></div>
+            <div class="form-group"><label>وصف المنتج</label><textarea id="pDesc" rows="2"></textarea></div>
+            <button class="btn" onclick="addAccessoryM()">نشر المنتج الفوري</button>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title"><i class="fa-solid fa-sim-card"></i> عرض خط جديد للبيع</div>
+            <div class="form-group"><label>الرقم المعروض</label><input type="tel" id="simNum" placeholder="078xxxxxxxx"></div>
+            <div class="form-group"><label>التصنيف</label><select id="simCat"><option>ملكي VIP</option><option>خماسي متناسق</option><option>مميز اقتصادي</option></select></div>
+            <div class="form-group"><label>السعر</label><input type="text" id="simPrice" placeholder="مثال: 25,000 دينار"></div>
+            <button class="btn" onclick="addSimM()">عرض الرقم فوراً</button>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title"><i class="fa-solid fa-share-nodes"></i> إضافة حساب / كروب (صفحة التواصل)</div>
+            <div class="form-group"><label>اسم المنصة أو الكروب</label><input type="text" id="linkName" placeholder="جروب كفو الرسمي"></div>
+            <div class="form-group"><label>أيقونة العرض</label><select id="linkIcon"><option value="fa-whatsapp">واتساب WhatsApp</option><option value="fa-telegram">تليغرام Telegram</option><option value="fa-facebook">فيسبوك Facebook</option><option value="fa-instagram">إنستغرام Instagram</option><option value="fa-phone">اتصال مباشر / فايبر</option><option value="fa-link">رابط عام آخر</option></select></div>
+            <div class="form-group"><label>الرابط المباشر</label><input type="text" id="linkUrl" placeholder="https://..."></div>
+            <button class="btn" onclick="addSocialLink()">إضافة لصفحة التواصل</button>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title"><i class="fa-solid fa-pen-to-square"></i> التحكم بنصوص وعبارات المتجر</div>
+            <div class="form-group"><label>شعار الواجهة الرئيسي</label><input type="text" id="txtLogo" value="⚡ منصة كفو الرقمية"></div>
+            <div class="form-group"><label>نص الترحيب بالزبائن</label><input type="text" id="txtWelcome" value="👋 أهلاً بك في منصتنا الرقمية"></div>
+            <button class="btn" onclick="updateTexts()">تحديث النصوص فوراً</button>
+        </div>
     </div>
 
     <div class="inventory-section">
-        <h2 style="font-weight: 900; font-size: 1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 10px;"><i class="fa-solid fa-sliders"></i> التحكم بالمعروضات (تعديل، إطفاء، حذف)</h2>
+        <h2>📦 التحكم بالمنصة والروابط والمدونات والأرقام</h2>
         
-        <h3 style="font-size:0.9rem; margin-top:20px; color:var(--muted)">📦 قسم البضائع والإكسسوارات</h3>
-        <div class="inventory-grid" id="productsControlContainer"></div>
+        <h3 style="margin-top:25px; color:var(--muted)">الأرقام وحالاتها المتقدمة (تعديل مباشر):</h3>
+        <div class="inventory-grid" id="simsControl"></div>
 
-        <h3 style="font-size:0.9rem; margin-top:20px; color:var(--muted)">📟 قسم أرقام الهواتف</h3>
-        <div class="inventory-grid" id="simsControlContainer"></div>
+        <h3 style="margin-top:25px; color:var(--muted)">روابط التواصل والكروبات المضافة:</h3>
+        <div class="inventory-grid" id="linksControl"></div>
 
-        <h3 style="font-size:0.9rem; margin-top:20px; color:var(--muted)">📄 قسم الصفحات الحرة</h3>
-        <div class="inventory-grid" id="pagesControlContainer"></div>
+        <h3 style="margin-top:25px; color:var(--muted)">المنتجات الحالية:</h3>
+        <div class="inventory-grid" id="prodControl"></div>
+        
+        <h3 style="margin-top:25px; color:var(--muted)">الأخبار والمنشورات الحالية:</h3>
+        <div class="inventory-grid" id="blogControlSection"></div>
     </div>
 </div>
 
@@ -143,156 +117,144 @@
         if(document.getElementById('pinCode').value === "7787") {
             document.getElementById('lockScreen').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
-            loadOrders();
-            loadInventoryManagement();
-        } else { alert("الرمز السري غير صحيح!"); }
+            getBlogGlobalSettings();
+            loadManagementData();
+        } else { alert("الرمز السري خطأ!"); }
     }
 
-    function addAccessory() {
-        const name = document.getElementById('pName').value;
-        const img = document.getElementById('pImg').value;
-        const price = document.getElementById('pPrice').value;
-        const desc = document.getElementById('pDesc').value;
-        if(!name || !price) return alert("يرجى ملء البيانات الأساسية!");
-        db.ref('products').push({ name: name, img: img, price: price, desc: desc, visible: true }).then(() => { alert("تم النشر!"); location.reload(); });
+    function getBlogGlobalSettings() {
+        db.ref('settings/blogVisible').on('value', snap => {
+            const status = snap.val() !== false;
+            const btn = document.getElementById('blogStatusGlobalBtn');
+            const editor = document.getElementById('blogEditorPanel');
+            btn.innerText = status ? "🟢 القسم شغال وظاهر للزبائن (اضغط للإطفاء)" : "🔴 القسم مطفأ ومخفي (اضغط للتشغيل)";
+            btn.style.background = status ? "#22c55e" : "#ef4444";
+            btn.setAttribute('data-status', status);
+            editor.style.display = status ? "block" : "none";
+        });
+        db.ref('settings/texts').once('value', snap => {
+            if(snap.exists()){
+                const t = snap.val();
+                if(t.logo) document.getElementById('txtLogo').value = t.logo;
+                if(t.welcome) document.getElementById('txtWelcome').value = t.welcome;
+            }
+        });
     }
 
-    function addSim() {
-        const number = document.getElementById('simNum').value;
+    function toggleGlobalBlogStatus() {
+        const current = document.getElementById('blogStatusGlobalBtn').getAttribute('data-status') === 'true';
+        db.ref('settings').update({ blogVisible: !current });
+    }
+
+    function convertFile(file) {
+        return new Promise((resolve) => {
+            if(!file) return resolve("");
+            const r = new FileReader(); r.onloadend = () => resolve(r.result); r.readAsDataURL(file);
+        });
+    }
+
+    async function addAccessoryM() {
+        const name = document.getElementById('pName').value; const price = document.getElementById('pPrice').value; const desc = document.getElementById('pDesc').value;
+        if(!name || !price) return alert("املا الحقول الأساسية");
+        const img1 = await convertFile(document.getElementById('pImg1').files[0]);
+        const img2 = await convertFile(document.getElementById('pImg2').files[0]);
+        const img3 = await convertFile(document.getElementById('pImg3').files[0]);
+        db.ref('products').push({ name, price, desc, visible: true, img: img1 || 'https://via.placeholder.com/300', img2: img2 || '', img3: img3 || '' }).then(() => { alert("تم إضافة المنتج!"); location.reload(); });
+    }
+
+    function addSimM() {
+        const number = document.getElementById('simNum').value.trim();
         const category = document.getElementById('simCat').value;
-        const price = document.getElementById('simPrice').value;
-        const desc = document.getElementById('simDesc').value;
-        if(!number || !price) return alert("يرجى ملء التفاصيل!");
-        db.ref('sims').push({ number: number, category: category, price: price, desc: desc, status: 'available' }).then(() => { alert("تم عرض الخط!"); location.reload(); });
-    }
-
-    function addBlogPost() {
-        const title = document.getElementById('blogTitle').value;
-        const img = document.getElementById('blogImg').value;
-        const body = document.getElementById('blogBody').value;
-        if(!title || !body) return alert("يرجى ملء التفاصيل!");
-        db.ref('blog').push({ title: title, img: img, body: body, date: new Date().toLocaleDateString('ar-IQ') }).then(() => { alert("تم النشر بالمدونة!"); location.reload(); });
-    }
-
-    function createNewPage() {
-        const title = document.getElementById('pageTitle').value.trim();
-        const body = document.getElementById('pageBody').value.trim();
-        if(!title || !body) return alert("يرجى إدخال الاسم والمحتوى!");
-        db.ref('custom_pages').push({ title: title, body: body, visible: true }).then(() => { alert("تم إنشاء الصفحة!"); location.reload(); });
-    }
-
-    function loadOrders() {
-        db.ref('orders').on('value', snap => {
-            const tbody = document.getElementById('ordersTable'); tbody.innerHTML = '';
-            snap.forEach(child => {
-                const o = child.val();
-                tbody.innerHTML += `
-                    <tr>
-                        <td><span class="badge ${o.type === 'accessory' ? 'accessory' : 'sim'}">${o.type === 'accessory' ? 'إكسسوار' : 'حجز خط'}</span></td>
-                        <td style="font-weight:700;">${o.itemName}</td>
-                        <td>${o.clientName}</td>
-                        <td>${o.clientPhone}</td>
-                        <td>${o.clientAddress}</td>
-                        <td><button style="background:var(--accent); border:none; padding:4px 8px; border-radius:4px; cursor:pointer;" onclick="archiveOrder('${child.key}')">✓</button></td>
-                    </tr>`;
-            });
+        const price = document.getElementById('simPrice').value.trim();
+        if(!number || !price) return alert("الرجاء إدخال رقم الهاتف والسعر!");
+        
+        db.ref('sims').push({ number, category, price, status: 'available' }).then(() => {
+            alert("تم إضافة الخط بنجاح وعرضه بالمتجر!");
+            document.getElementById('simNum').value = '';
+            document.getElementById('simPrice').value = '';
         });
     }
 
-    function archiveOrder(key) { if(confirm("هل تم تسليم الطلب؟")) { db.ref('orders/' + key).remove(); } }
+    async function addBlogM() {
+        const title = document.getElementById('bTitle').value; const body = document.getElementById('bBody').value;
+        if(!title || !body) return alert("أدخل بيانات الخبر");
+        const img = await convertFile(document.getElementById('bImg').files[0]);
+        db.ref('blog').push({ title, body, img: img || 'https://via.placeholder.com/400x200' }).then(() => { alert("تم نشر الخبر!"); location.reload(); });
+    }
 
-    function loadInventoryManagement() {
-        // 1. التحكم بالبضائع والإكسسوارات
+    function addSocialLink() {
+        const title = document.getElementById('linkName').value; const icon = document.getElementById('linkIcon').value; const url = document.getElementById('linkUrl').value;
+        if(!title || !url) return alert("أدخل اسم ورابط الحساب/الجروب");
+        db.ref('social_links').push({ title, icon, url }).then(() => { alert("تم إضافة الرابط بنجاح!"); document.getElementById('linkName').value=''; document.getElementById('linkUrl').value=''; });
+    }
+
+    function updateTexts() {
+        const logo = document.getElementById('txtLogo').value; const welcome = document.getElementById('txtWelcome').value;
+        db.ref('settings/texts').update({ logo, welcome }).then(() => alert("تم تحديث نصوص المتجر!"));
+    }
+
+    function loadManagementData() {
         db.ref('products').on('value', snap => {
-            const container = document.getElementById('productsControlContainer'); container.innerHTML = '';
+            const div = document.getElementById('prodControl'); div.innerHTML = '';
             snap.forEach(child => {
-                const key = child.key; const p = child.val();
-                const isVisible = p.visible !== false;
-                container.innerHTML += `
-                    <div class="inventory-card ${isVisible ? '' : 'disabled'}">
-                        <div><strong>الاسم:</strong> ${p.name}</div>
-                        <div><strong>السعر:</strong> ${p.price}</div>
-                        <div class="card-meta">الحالة: ${isVisible ? '🟢 معروض بالمتجر' : '🔴 مخفي (مطفي)'}</div>
+                const p = child.val(); const key = child.key; const isVis = p.visible !== false;
+                div.innerHTML += `
+                    <div class="inventory-card">
+                        <strong>${p.name}</strong>
+                        <div>الحالة: ${isVis ? '🟢 معروض' : '🔴 مخفي مؤقتاً'}</div>
                         <div class="card-actions">
-                            <button class="action-edit" onclick="editItem('products', '${key}', 'name', '${p.name}', 'price', '${p.price}')"><i class="fa-solid fa-pen"></i> تعديل</button>
-                            <button class="action-toggle" onclick="toggleVisibility('products', '${key}', ${isVisible})"><i class="fa-solid fa-power-off"></i> ${isVisible ? 'إطفاء' : 'تشغيل'}</button>
-                            <button class="action-delete" onclick="deleteItem('products', '${key}')"><i class="fa-solid fa-trash"></i> حذف</button>
+                            <button style="background:var(--warning); color:#000" onclick="db.ref('products/${key}').update({visible: ${!isVis}})">تغيير الحالة</button>
+                            <button style="background:var(--danger)" onclick="if(confirm('حذف؟')) db.ref('products/${key}').remove()">حذف</button>
                         </div>
                     </div>`;
             });
         });
 
-        // 2. التحكم بالخطوط والأرقام المميزة
         db.ref('sims').on('value', snap => {
-            const container = document.getElementById('simsControlContainer'); container.innerHTML = '';
+            const div = document.getElementById('simsControl'); div.innerHTML = '';
             snap.forEach(child => {
-                const key = child.key; const s = child.val();
-                let statusText = '🟢 متاح للجميع';
-                let toggleText = 'إخفاء مؤقت';
-                
-                if(s.status === 'reserved') {
-                    statusText = '🔴 محجوز من قبل زبون';
-                    toggleText = 'إعادة تفعيل الخط';
-                } else if(s.status === 'hidden') {
-                    statusText = '⚫ مطفأ ومخفي يدوياً';
-                    toggleText = 'تشغيل وإتاحة';
-                }
+                const s = child.val(); const key = child.key;
+                let currentStatus = '🟢 متاح للبيع';
+                if(s.status === 'reserved') currentStatus = '🔴 محجوز لزبون';
+                if(s.status === 'sold_direct') currentStatus = '💵 تم بيعه مباشر';
+                if(s.status === 'company_withdrawn') currentStatus = '⚠️ سحبته الشركة';
 
-                container.innerHTML += `
-                    <div class="inventory-card ${s.status !== 'available' ? 'disabled' : ''}">
-                        <div style="direction:ltr; text-align:right;"><strong>الرقم:</strong> ${s.number}</div>
-                        <div><strong>السعر:</strong> ${s.price}</div>
-                        <div class="card-meta">الفئة: ${s.category} | الحالة: ${statusText}</div>
+                div.innerHTML += `
+                    <div class="inventory-card">
+                        <strong style="direction:ltr; text-align:right;">${s.number}</strong>
+                        <div style="font-size:0.85rem;">الوضع الحالي: <span style="color:var(--turquoise); font-weight:bold;">${currentStatus}</span></div>
                         <div class="card-actions">
-                            <button class="action-edit" onclick="editItem('sims', '${key}', 'number', '${s.number}', 'price', '${s.price}')"><i class="fa-solid fa-pen"></i> تعديل</button>
-                            <button class="action-toggle" onclick="toggleSimStatus('${key}', '${s.status}')"><i class="fa-solid fa-power-off"></i> ${toggleText}</button>
-                            <button class="action-delete" onclick="deleteItem('sims', '${key}')"><i class="fa-solid fa-trash"></i> حذف</button>
+                            <button style="background:#22c55e" onclick="db.ref('sims/${key}').update({status: 'available'})">إتاحة للبيع</button>
+                            <button style="background:#eab308; color:#000;" onclick="db.ref('sims/${key}').update({status: 'sold_direct'})">بيع مباشر</button>
+                            <button style="background:#71717a" onclick="db.ref('sims/${key}').update({status: 'company_withdrawn'})">سحب الشركة</button>
+                            <button style="background:var(--danger)" onclick="if(confirm('حذف الخط؟')) db.ref('sims/${key}').remove()">حذف</button>
                         </div>
                     </div>`;
             });
         });
 
-        // 3. التحكم بالصفحات الحرة بالشريط العلوي
-        db.ref('custom_pages').on('value', snap => {
-            const container = document.getElementById('pagesControlContainer'); container.innerHTML = '';
+        db.ref('social_links').on('value', snap => {
+            const div = document.getElementById('linksControl'); div.innerHTML = '';
             snap.forEach(child => {
-                const key = child.key; const page = child.val();
-                const isVisible = page.visible !== false;
-                container.innerHTML += `
-                    <div class="inventory-card ${isVisible ? '' : 'disabled'}">
-                        <div><strong>اسم الصفحة:</strong> ${page.title}</div>
-                        <div class="card-meta">الحالة: ${isVisible ? '🟢 تظهر بالشريط' : '🔴 مخفية عن الزبائن'}</div>
-                        <div class="card-actions">
-                            <button class="action-toggle" onclick="toggleVisibility('custom_pages', '${key}', ${isVisible})"><i class="fa-solid fa-power-off"></i> ${isVisible ? 'إخفاء' : 'إظهار'}</button>
-                            <button class="action-delete" onclick="deleteItem('custom_pages', '${key}')"><i class="fa-solid fa-trash"></i> حذف</button>
-                        </div>
+                const l = child.val();
+                div.innerHTML += `
+                    <div class="inventory-card">
+                        <strong>${l.title}</strong>
+                        <div class="card-actions"><button style="background:var(--danger)" onclick="db.ref('social_links/${child.key}').remove()">حذف الرابط</button></div>
                     </div>`;
             });
         });
-    }
 
-    function editItem(node, key, field1, val1, field2, val2) {
-        const newVal1 = prompt(`تعديل البيانات الحالية (${val1}):`, val1);
-        const newVal2 = prompt(`تعديل السعر الحالي (${val2}):`, val2);
-        if (newVal1 !== null && newVal2 !== null) {
-            let updateData = {}; updateData[field1] = newVal1; updateData[field2] = newVal2;
-            db.ref(node + '/' + key).update(updateData).then(() => alert("تم التحديث فوراً!"));
-        }
-    }
-
-    function toggleVisibility(node, key, currentStatus) { db.ref(node + '/' + key).update({ visible: !currentStatus }); }
-
-    function toggleSimStatus(key, currentStatus) {
-        let nextStatus = 'available';
-        if(currentStatus === 'available') nextStatus = 'hidden';
-        else if(currentStatus === 'reserved' || currentStatus === 'hidden') nextStatus = 'available';
-        db.ref('sims/' + key).update({ status: nextStatus });
-    }
-
-    function deleteItem(node, key) {
-        if(confirm("⚠️ هل تريد حذف هذه المادة نهائياً وبشكل قطعي؟")) {
-            db.ref(node + '/' + key).remove().then(() => alert("تم الحذف بنجاح!"));
-        }
+        db.ref('blog').on('value', snap => {
+            const div = document.getElementById('blogControlSection'); div.innerHTML = '';
+            snap.forEach(child => {
+                div.innerHTML += `
+                    <div class="inventory-card">
+                        <strong>${child.val().title}</strong>
+                        <div class="card-actions"><button style="background:var(--danger)" onclick="db.ref('blog/${child.key}').remove()">حذف الخبر</button></div>
+                    </div>`;
+            });
+        });
     }
 </script>
 </body>
